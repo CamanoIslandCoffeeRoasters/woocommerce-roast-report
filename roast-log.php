@@ -11,6 +11,9 @@ License: GNU
 if (!defined('RL_URL'))
     define('RL_URL', plugins_url() . '/' . basename(dirname(__FILE__)) . '/');
 
+if (!defined('ROAST_REPORT_FRONTEND'))
+    define('ROAST_REPORT_FRONTEND', untrailingslashit( plugin_dir_path(__FILE__)));
+
 if (!defined('RL_PATH'))
     define('RL_PATH', plugin_dir_path(__FILE__));
 
