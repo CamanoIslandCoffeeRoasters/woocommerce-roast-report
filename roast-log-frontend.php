@@ -82,6 +82,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 
 
 	    function roastSelection() {
+	        jQuery(".roastedToday").show();
 	        jQuery("#roastSelection").show();
 	        jQuery(".button").click(function() {
 	            // Checks to see if any button has already been pressed.
@@ -142,7 +143,20 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 	                    jQuery('#timeDisplay').text(beforeColon + ":" + afterColon);
 	                }, 1000);
 	            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") != '') {
-	                finishingTime = jQuery("#timeField").attr("value");
+	                jQuery('a').click(function(event) {
+                         event.preventDefault();
+                         finishingTime = jQuery('#timeField').attr("value");
+                         roastComment = jQuery("#roastComment").attr("value");
+                          jQuery("#roastExit").val('2');
+                          var time = new Date();
+                          var endTime = (
+                              ("0" + time.getHours()).slice(-2) + ":" +
+                              ("0" + time.getMinutes()).slice(-2) + ":" +
+                              ("0" + time.getSeconds()).slice(-2));
+                          jQuery('#endTime').val(endTime);
+                          submitInfo(finishingTime);
+                    })
+                     finishingTime = jQuery("#timeField").attr("value");
 	                roastComments = jQuery("#roastComments").attr("value");
 	                jQuery("#roastExit").val('2');
 	                var time = new Date();
@@ -152,6 +166,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 	                    ("0" + time.getSeconds()).slice(-2));
 	                jQuery('#endTime').val(endTime);
 	                submitInfo(finishingTime);
+                     jQuery("#timeDisplay").closest("form").trigger('submit');
 	            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") == '') {
 	            	jQuery('a').click(function(event) {
 	            		event.preventDefault();
@@ -277,6 +292,11 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 											<input type='hidden' id='endTime' name='endTime' value="">
 										</form>
 									</section>
+									<?php
+									$roastedToday = $wpdb->get_var("SELECT SUM(greenCoffee) FROM ". $wpdb->prefix . "roast_db WHERE roastDate = CURDATE()");
+									?>
+									<h1 class='roastedToday' style='text-align: center; display: none;'><?php echo $roastedToday; ?>LBS Roasted Today so Far</h1>
+									
 											<style type="text/css">
 												input[type='range']::-webkit-slider-thumb {
 												    -webkit-appearance: none !important;
