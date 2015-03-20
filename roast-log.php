@@ -19,8 +19,10 @@ if (!defined('RL_PATH'))
 
 function roastMenu()
 {
-    add_menu_page("Roast Log", "Roast Statistics", "manage_options", "roast-options", 'roast_options', '/wp-content/plugins/tanners-roast-log/favicon.ico', 75);
+    add_menu_page("Roast Log", "Roast Report", "manage_options", "roast-options", 'roast_options_callback', '/wp-content/plugins/woocommerce-roast-report/favicon.ico', 75);
     /*		add_submenu_page();*/
+     add_submenu_page('roast-options', 'Roast Statistics', 'Roast Statistics', 'manage_options', 'roast_dashboard', 'roast_options');
+     add_submenu_page('roast-options', 'Add Roast', 'Add Roast', 'manage_options', 'add-roast', 'add_roast_callback');
 }
 
 add_action('admin_menu', 'roastMenu');
@@ -128,4 +130,41 @@ function roast_options() {
 	echo "</table>";
 }
 
-//WC PRODUCT!!!! LOOK IT UP!
+function add_roast_callback() {
+               echo '<div class="wrap">';
+                    include RL_PATH . 'includes/add-roast.php';
+               echo '</div>';
+     }
+     function roast_options_callback() {
+                   global $wpdb;
+               
+                   $roast_table = $wpdb->prefix . "roast_db";
+                   
+                   $create_table = "CREATE TABLE IF NOT EXISTS " . $roast_table . " (
+                                     id int(11) NOT NULL AUTO_INCREMENT,
+                                     roastDate date NOT NULL,
+                                     roastTime time NOT NULL,
+                                     coffeeChoice text COLLATE utf8_unicode_ci NOT NULL,
+                                     roastChoice text COLLATE utf8_unicode_ci NOT NULL,
+                                     greenCoffee int(11) NOT NULL,
+                                     roastedCoffee int(11) NOT NULL,
+                                     user text COLLATE utf8_unicode_ci NOT NULL,
+                                     roastStart time NOT NULL,
+                                     roastStop time NOT NULL,
+                                     roastLength time NOT NULL,
+                                     roastComments varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                                     roastStopType int(11) NOT NULL,
+                                     PRIMARY KEY  (id),
+                                     UNIQUE KEY id (id)
+                                     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+                   
+                   
+                   require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+                   dbDelta( $create_table );
+               
+                   
+                   echo '<div class="wrap">';
+                    include RL_PATH . 'includes/roast-report.php';
+                   echo '</div>';
+               }
+?>
