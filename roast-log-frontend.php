@@ -274,8 +274,8 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 										<table >
 											<tbody>
 												<tr><td></td><td style="text-align: center;"><input id="timeField" type="number" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
-												<tr><td style="text-align: center; width: 50%" ><input type="image" class="stopWatch" id="stopWatch" align="bottom" src="http://192.241.195.110/wp-content/uploads/2015/03/Timer-Brown.png" style="border: none; width: 50%; padding: 5%; position: relative;">
-													<a href=""><h1 class="stopWatch" id="timeDisplay" style="position: absolute; top: 65%; font-weight: 30px; color: white; text-align: center; width: 50%;">0:00</h1></a>
+												<tr><td style="text-align: center; width: 50%" ><input type="image" class="stopWatch" id="stopWatch" align="bottom" src="<?php echo get_option('siteurl') ?>/wp-content/uploads/2015/03/Timer-Brown.png" style="border: none; width: 50%; padding: 5%; position: relative;">
+													<a href=""><h1 class="stopWatch" id="timeDisplay" style="position: absolute; top: 59%; font-weight: 30px; color: white; text-align: center; width: 50%;">0:00</h1></a>
 														</td>
 													<td style="text-align: center" align="left"><textarea  id="roastComments" placeholder="Enter any special notes!" style="width: 85%; height: 340px; vertical-align: bottom; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;"></textarea></td>
 												</tr>
@@ -300,7 +300,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 											<style type="text/css">
 												input[type='range']::-webkit-slider-thumb {
 												    -webkit-appearance: none !important;
-												    background: url('http://192.241.195.110/wp-content/uploads/2015/03/images-e1426632763847.png') no-repeat center center;
+												    background: url('<?php echo get_option('siteurl') ?>/wp-content/uploads/2015/03/images-e1426632763847.png') no-repeat center center;
 												    height:80px;
 												    width:75px;
 												    border-top-right-radius:80px;
@@ -313,13 +313,10 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 												}
 											</style>
 
-							<?php woo_loop_after(); ?>     
-			            <!-- /#main
-			            <?php woo_main_after(); ?>
-			            <?php get_sidebar(); ?> -->
-					</div><!-- /#main-sidebar-container -->     
+							<?php woo_loop_after(); ?>
+					</div>
 					<?php get_sidebar('alt'); ?>
-			    </div><!-- /#content -->
+			    </div>
 			<?php woo_content_after(); ?>
-		</main><!-- .site-main -->
-	</div><!-- .content-area --><?php get_footer();?>
+		</main>
+	</div><?php get_footer();?>

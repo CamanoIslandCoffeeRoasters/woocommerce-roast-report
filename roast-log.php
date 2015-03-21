@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: Tanner's Roast Log
-Plugin URI: http://www.camanoislandcoffee.com
-Description: Roast Log for CICR
-Version: 0.9
+Plugin Name: Woocommerce Roast Log
+Plugin URI: http://camanoislandcoffee.com
+Description: Roast information for logging and accounting purposes.
+Version: 1.0
 Author: Tanner Legasse	
-Author URI: www.cicr.us
+Author URI: 
 License: GNU
 */
 if (!defined('RL_URL'))
@@ -20,7 +20,6 @@ if (!defined('RL_PATH'))
 function roastMenu()
 {
     add_menu_page("Roast Log", "Roast Report", "manage_options", "roast-options", 'roast_options_callback', '/wp-content/plugins/woocommerce-roast-report/favicon.ico', 75);
-    /*		add_submenu_page();*/
      add_submenu_page('roast-options', 'Roast Statistics', 'Roast Statistics', 'manage_options', 'roast_dashboard', 'roast_options');
      add_submenu_page('roast-options', 'Add Roast', 'Add Roast', 'manage_options', 'add-roast', 'add_roast_callback');
 }
@@ -55,7 +54,7 @@ function roast_options() {
             'Country_Name' => $_POST['country'],
             'Lot_Number' => $_POST['lotnum'],
             'Roasts_Available' => $roastsAbailable));
-        echo "<p style='background-color: #4FFF5E;'>Thanks! The new coffee has been added.</p> ";
+          echo "<p style='background-color: #4FFF5E;'>Thanks! The new coffee has been added.</p> ";
 		
 		$country = $_POST['country'];
 		$args = array(	'post_type'    =>   array('product', 'product_variation'),
@@ -70,37 +69,32 @@ function roast_options() {
 	};
 ?>
 
-<script type="text/javascript">
-	jQuery(document).ready(function() {
-	}
-</script>
-
-		<form action="" method="POST">
-			<p><b>Enter a new roast!</b></p>
-			<select id="country" name="country">
-			<option value="Brazil">Brazil</option>
-			<option value="Cascadia">Cascadia</option>
-			<option value="Chile">Chile</option>
-			<option value="Colombia">Colombia</option>
-			<option value="Estonia">Estonia</option>
-			<option value="Ethiopia">Ethiopia</option>
-			<option value="Guatemala">Guatemala</option>
-			<option value="Guinea">Guinea</option>
-			<option value="Honduras">Honduras</option>
-			<option value="Indonesia">Indonesia</option>
-			<option value="Mexico">Mexico</option>
-			<option value="PNG">Papua New Guinea</option>
-			<option value="Peru">Peru</option>
-			<option value="Sumatra">Sumatra</option>
-			</select><br>
-			<input Type="text" name="lotnum" placeholder="Lot Number" /> <br>
-			<label><input Type="checkbox" name="roasts[]" value="Light"/> Light</label><br>
-			<label><input Type="checkbox" name="roasts[]" value="Medium"/> Medium</label><br>
-			<label><input Type="checkbox" name="roasts[]" value="Dark"/> Dark</label><br>
-			<label><input Type="checkbox" name="roasts[]" value="Reserve"/> Reserve</label><br>
-			<label><input Type="checkbox" name="roasts[]" value="Decaf"/> Decaf</label><br>
-			<input Type="submit" action= "" name="submit" value="Submit New Origin"/>
-		</form>
+	<form action="" method="POST">
+		<p><b>Enter a new roast!</b></p>
+		<select id="country" name="country">
+		<option value="Brazil">Brazil</option>
+		<option value="Cascadia">Cascadia</option>
+		<option value="Chile">Chile</option>
+		<option value="Colombia">Colombia</option>
+		<option value="Estonia">Estonia</option>
+		<option value="Ethiopia">Ethiopia</option>
+		<option value="Guatemala">Guatemala</option>
+		<option value="Guinea">Guinea</option>
+		<option value="Honduras">Honduras</option>
+		<option value="Indonesia">Indonesia</option>
+		<option value="Mexico">Mexico</option>
+		<option value="PNG">Papua New Guinea</option>
+		<option value="Peru">Peru</option>
+		<option value="Sumatra">Sumatra</option>
+		</select><br>
+		<input Type="text" name="lotnum" placeholder="Lot Number" /> <br>
+		<label><input Type="checkbox" name="roasts[]" value="Light"/> Light</label><br>
+		<label><input Type="checkbox" name="roasts[]" value="Medium"/> Medium</label><br>
+		<label><input Type="checkbox" name="roasts[]" value="Dark"/> Dark</label><br>
+		<label><input Type="checkbox" name="roasts[]" value="Reserve"/> Reserve</label><br>
+		<label><input Type="checkbox" name="roasts[]" value="Decaf"/> Decaf</label><br>
+		<input Type="submit" action= "" name="submit" value="Submit New Origin"/>
+	</form>
 
 <?php
 	global $wpdb;	
@@ -131,40 +125,35 @@ function roast_options() {
 }
 
 function add_roast_callback() {
-               echo '<div class="wrap">';
-                    include RL_PATH . 'includes/add-roast.php';
-               echo '</div>';
-     }
-     function roast_options_callback() {
-                   global $wpdb;
-               
-                   $roast_table = $wpdb->prefix . "roast_db";
-                   
-                   $create_table = "CREATE TABLE IF NOT EXISTS " . $roast_table . " (
-                                     id int(11) NOT NULL AUTO_INCREMENT,
-                                     roastDate date NOT NULL,
-                                     roastTime time NOT NULL,
-                                     coffeeChoice text COLLATE utf8_unicode_ci NOT NULL,
-                                     roastChoice text COLLATE utf8_unicode_ci NOT NULL,
-                                     greenCoffee int(11) NOT NULL,
-                                     roastedCoffee int(11) NOT NULL,
-                                     user text COLLATE utf8_unicode_ci NOT NULL,
-                                     roastStart time NOT NULL,
-                                     roastStop time NOT NULL,
-                                     roastLength time NOT NULL,
-                                     roastComments varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-                                     roastStopType int(11) NOT NULL,
-                                     PRIMARY KEY  (id),
-                                     UNIQUE KEY id (id)
-                                     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-                   
-                   
-                   require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                   dbDelta( $create_table );
-               
-                   
-                   echo '<div class="wrap">';
-                    include RL_PATH . 'includes/roast-report.php';
-                   echo '</div>';
-               }
+     echo '<div class="wrap">';
+          include RL_PATH . 'includes/add-roast.php';
+     echo '</div>';
+}
+function roast_options_callback() {
+    global $wpdb;
+    $roast_table = $wpdb->prefix . "roast_db";
+    $create_table = "CREATE TABLE IF NOT EXISTS " . $roast_table . " (
+                      id int(11) NOT NULL AUTO_INCREMENT,
+                      roastDate date NOT NULL,
+                      roastTime time NOT NULL,
+                      coffeeChoice text COLLATE utf8_unicode_ci NOT NULL,
+                      roastChoice text COLLATE utf8_unicode_ci NOT NULL,
+                      greenCoffee int(11) NOT NULL,
+                      roastedCoffee int(11) NOT NULL,
+                      user text COLLATE utf8_unicode_ci NOT NULL,
+                      roastStart time NOT NULL,
+                      roastStop time NOT NULL,
+                      roastLength time NOT NULL,
+                      roastComments varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                      roastStopType int(11) NOT NULL,
+                      PRIMARY KEY  (id),
+                      UNIQUE KEY id (id)
+                      ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+    
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $create_table );
+    echo '<div class="wrap">';
+     include RL_PATH . 'includes/roast-report.php';
+    echo '</div>';
+}
 ?>
