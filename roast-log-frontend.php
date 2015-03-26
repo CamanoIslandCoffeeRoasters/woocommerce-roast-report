@@ -270,7 +270,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 									</section>
 									<section id='startRoast' style="display: none;">
 										<form method="POST" action="">
-										<table><tr><td><h1 style="text-align: center;">Touch the stopwatch to start and stop the roast!</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
+										<table><tr><td><h1 style="font-size: 2.5em; text-align: center; text-align: center;">Touch the stopwatch to start and stop the roast!</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
 										<table>
 											<tbody>
 												<tr><td></td><td style="text-align: center; padding: 30px 0 0 0;"><input id="timeField" type="number" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
