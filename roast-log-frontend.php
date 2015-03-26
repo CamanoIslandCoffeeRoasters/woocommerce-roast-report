@@ -1,6 +1,7 @@
 <?php /* Template Name: Portal - Roast Log 
  */
 get_header();
+date_default_timezone_set('America/Los_Angeles');
 $timeNow = gmdate('H:i:s', time() - 943945200);
 $dateNow = date('Y-m-d');
 global $wpdb;
@@ -19,8 +20,9 @@ if ($_POST["roastExit"] == 1 AND strlen($totalTime) == 5) {
 } else if ($_POST["roastExit"] == 2 AND strlen($totalTime) ==3) {
 	$totalTime = "00:0" . substr($totalTime,0,1).':'.substr($totalTime,1,2);
 }
+echo "<input style='display: none;' id='isLoggedIn' name='isLoggedIn' value='" . $_POST['selectedUser'] . "'>";
+if ($_POST['intensity'] != "") {
 $lotNumber = $wpdb->get_var("SELECT Lot_Number FROM ". $wpdb->prefix . "roast_details WHERE Country_Name = '". $_POST['origin'] . "'");
-												    
 $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedUser"],
 													'roastDate' 		=> $date,
 										            'coffeeChoice' 		=> $_POST['origin'],
@@ -34,8 +36,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 													'roastStop'			=> $_POST['endTime'],
 													'lotNumber'			=> $lotNumber,
 													'roastTime' 		=> $_POST['startTime']));
-		echo "<input style='display: none;' id='isLoggedIn' name='isLoggedIn' value='" . $_POST['selectedUser'] . "'>";
-}
+}}
 ?>
 <script type="text/javascript">
 	jQuery(document).ready(function() {
@@ -82,6 +83,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 
 
 	    function roastSelection() {
+	        jQuery("#selectedUser").val(selectedUser);
 	        jQuery(".roastedToday").show();
 	        jQuery("#roastSelection").show();
 	        jQuery(".button").click(function() {
@@ -166,7 +168,6 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 	                    ("0" + time.getSeconds()).slice(-2));
 	                jQuery('#endTime').val(endTime);
 	                submitInfo(finishingTime);
-                     jQuery("#timeDisplay").closest("form").trigger('submit');
 	            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") == '') {
 	            	jQuery('a').click(function(event) {
 	            		event.preventDefault();
@@ -190,19 +191,18 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 	                    ("0" + time.getSeconds()).slice(-2));
 	                jQuery('#endTime').val(endTime);
 	                submitInfo(finishingTime);
-	                jQuery("#timeDisplay").closest("form").trigger('submit');
 	            }
 	        })
 	    }
 
 
 	    function submitInfo(finishingTime) {
-	        jQuery("#selectedUser").val(selectedUser);
 	        jQuery("#origin").val(button);
 	        jQuery("#roastWeight").val(weight);
 	        jQuery("#finishingTime").val(finishingTime);
 	        jQuery("#intensity").val(intensity);
 	        jQuery("#comment").val(jQuery("#roastComments").attr("value"));
+	        jQuery("#timeDisplay").closest("form").trigger('submit');
 	    };
 	});
 </script>
@@ -219,8 +219,8 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 			            	<h1 style='text-align: center;'>Select a Roaster:<br><br></h1>
 			            		<form method="POST" action="">
 			            			<table border=0><th><tr style="width: 100%">
-			            					<td style="width:850px"><input type="button" class='button users' style='text-align: center; font-size: 150%; width: 100%;' data-user='Tanner' name='Tanner' value='Tanner'></td>
 			            					<td style="width:33%"><input type="button" class='button users' style='text-align: center; font-size: 150%; width: 100%;' data-user='Rob' name='Rob' value='Rob'></td>
+			            					<td style="width:850px"><input type="button" class='button users' style='text-align: center; font-size: 150%; width: 100%;' data-user='Tanner' name='Tanner' value='Tanner'></td>
 			            					<td style="width:33%"><input type="button" class='button users' style='text-align: center; font-size: 150%; width: 100%;' data-other='other' name='Other' value='other'></td>
 			            			</tr></th></table>
 			            		</form>
@@ -269,11 +269,11 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 									</table>
 									</section>
 									<section id='startRoast' style="display: none;">
-										<h1 style="text-align: center;">Touch the stopwatch to start and stop the raost!</h1><br>
-			            		<form method="POST" action="">
-										<table >
+										<form method="POST" action="">
+										<table><tr><td><h1 style="text-align: center;">Touch the stopwatch to start and stop the roast!</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
+										<table>
 											<tbody>
-												<tr><td></td><td style="text-align: center;"><input id="timeField" type="number" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
+												<tr><td></td><td style="text-align: center; padding: 30px 0 0 0;"><input id="timeField" type="number" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
 												<tr><td style="text-align: center; width: 50%" ><input type="image" class="stopWatch" id="stopWatch" align="bottom" src="<?php echo get_option('siteurl') ?>/wp-content/uploads/2015/03/Timer-Brown.png" style="border: none; width: 50%; padding: 5%; position: relative;">
 													<a href=""><h1 class="stopWatch" id="timeDisplay" style="position: absolute; top: 59%; font-weight: 30px; color: white; text-align: center; width: 50%;">0:00</h1></a>
 														</td>

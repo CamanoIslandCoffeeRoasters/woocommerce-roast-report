@@ -507,7 +507,7 @@ echo "</table>";
 if (($_GET['monthly_roast_report'])) {
 
 				$daily_total = 0;
-				$daily_coffee = $wpdb->get_results("SELECT roastDate, coffeeChoice, roastChoice, user, SUM(greenCoffee), SUM(roastedCoffee) FROM `cicr_roast_db` where roastDate BETWEEN '2014-07-01' AND '2014-07-31' GROUP BY coffeeChoice", ARRAY_N );
+				$daily_coffee = $wpdb->get_results("SELECT roastDate, coffeeChoice, roastChoice, user, SUM(greenCoffee), SUM(roastedCoffee) FROM `cicr_roast_db` WHERE roastDate BETWEEN '$dateResult' AND '$dateResult2' GROUP BY coffeeChoice", ARRAY_N );
 				
 			echo "<table class=\"widefat\" width=\"30%\">";
 			echo "<thead>";
