@@ -17,9 +17,11 @@ if (!defined('ROAST_REPORT_FRONTEND'))
 if (!defined('RL_PATH'))
     define('RL_PATH', plugin_dir_path(__FILE__));
 
+register_activation_hook( __FILE__, 'activationTables' );
+
 function roastMenu()
 {
-    add_menu_page("Roast Log", "Roast Report", "manage_options", "roast-options", 'roast_options_callback', '/wp-content/plugins/woocommerce-roast-report/favicon.ico', 75);
+     add_menu_page("Roast Log", "Roast Report", "manage_options", "roast-options", 'roast_options_callback', '/wp-content/plugins/woocommerce-roast-report/favicon.ico', 75);
      add_submenu_page('roast-options', 'Roast Statistics', 'Roast Statistics', 'manage_options', 'roast_dashboard', 'roast_options');
      add_submenu_page('roast-options', 'Add Roast', 'Add Roast', 'manage_options', 'add-roast', 'add_roast_callback');
 }
@@ -86,6 +88,7 @@ function roast_options() {
 		<option value="PNG">Papua New Guinea</option>
 		<option value="Peru">Peru</option>
 		<option value="Sumatra">Sumatra</option>
+		<option value="Uganda">Uganda</option>
 		</select><br>
 		<input Type="text" name="lotnum" placeholder="Lot Number" /> <br>
 		<label><input Type="checkbox" name="roasts[]" value="Light"/> Light</label><br>
@@ -129,10 +132,11 @@ function add_roast_callback() {
           include RL_PATH . 'includes/add-roast.php';
      echo '</div>';
 }
-function roast_options_callback() {
+
+function activationTables() {
     global $wpdb;
     $roast_table = $wpdb->prefix . "roast_db";
-    $create_table = "CREATE TABLE IF NOT EXISTS " . $roast_table . " (
+    $create_table =   "CREATE TABLE IF NOT EXISTS " . $roast_table . " (
                       id int(11) NOT NULL AUTO_INCREMENT,
                       roastDate date NOT NULL,
                       roastTime time NOT NULL,
@@ -149,9 +153,23 @@ function roast_options_callback() {
                       PRIMARY KEY  (id),
                       UNIQUE KEY id (id)
                       ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-    
+    $detailsTable = $wpdb->prefix . "roast_details";
+    $createDetailsTable = "CREATE TABLE IF NOT EXISTS " . $detailsTable . "(
+  					  id int(11) NOT NULL AUTO_INCREMENT,
+  					  Entry_Date date NOT NULL,
+					  End_Date date NOT NULL,
+					  Country_Name varchar(50) CHARACTER SET utf8 NOT NULL,
+					  Lot_Number varchar(50) CHARACTER SET utf8 NOT NULL,
+					  Roasts_Available varchar(255) NOT NULL,
+					  User_Name varchar(50) CHARACTER SET utf8 NOT NULL,
+					  Active tinyint(1) DEFAULT '1',
+					  PRIMARY KEY  (ID)
+					  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $create_table );
+    dbDelta( $createDetailsTable );
+    }
+function roast_options_callback() {
     echo '<div class="wrap">';
      include RL_PATH . 'includes/roast-report.php';
     echo '</div>';
