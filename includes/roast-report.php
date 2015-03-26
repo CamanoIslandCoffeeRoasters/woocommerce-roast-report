@@ -530,7 +530,6 @@ if (($_GET['monthly_roast_report'])) {
 				else{				
 					echo "No roasts today";
 				}
-					
 					echo "</tr>";
 				
 			endforeach;
@@ -542,7 +541,6 @@ if (($_GET['monthly_roast_report'])) {
 			echo "</tbody>";
 			echo "</table>";
 			}
-
 }
 
 ?>
