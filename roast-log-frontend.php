@@ -7,14 +7,14 @@ $dateNow = date('Y-m-d');
 global $wpdb;
 $date = date('Y-m-d');
 
-
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {      
 $totalTime = $_POST['finishingTime'];
 if ($_POST["roastExit"] == 1 AND strlen($totalTime) == 5) {
 	$totalTime = "00:" . $totalTime;
 } else if ($_POST["roastExit"] == 1 AND strlen($totalTime) == 4){
 	$totalTime = "00:0" . $totalTime;
+} else if ($_POST["roastExit"] == 2 AND strlen($totalTime) ==5) {
+	$totalTime = "00:" . $totalTime;
 } else if ($_POST["roastExit"] == 2 AND strlen($totalTime) ==4) {
 	$totalTime = "00:" . substr($totalTime,0,2).':'.substr($totalTime,2,2);
 } else if ($_POST["roastExit"] == 2 AND strlen($totalTime) ==3) {
@@ -22,7 +22,7 @@ if ($_POST["roastExit"] == 1 AND strlen($totalTime) == 5) {
 }
 echo "<input style='display: none;' id='isLoggedIn' name='isLoggedIn' value='" . $_POST['selectedUser'] . "'>";
 if ($_POST['intensity'] != "") {
-$lotNumber = $wpdb->get_var("SELECT Lot_Number FROM ". $wpdb->prefix . "roast_details WHERE Country_Name = '". $_POST['origin'] . "'");
+$lotNumber = $wpdb->get_var("SELECT Lot_Number FROM " . $wpdb->prefix . "roast_details WHERE Country_Name = '". $_POST['origin'] . "'");
 $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedUser"],
 													'roastDate' 		=> $date,
 										            'coffeeChoice' 		=> $_POST['origin'],
@@ -40,171 +40,180 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 ?>
 <script type="text/javascript">
 	jQuery(document).ready(function() {
-		jQuery(".breadcrumb-trail").hide();
-		jQuery(".breadcrumb").hide();
-		jQuery(".widget").hide();
-	    var hasBeenSet = 0;
-	    var button;
-	    var selectedUser = 0;
-	    var intensity;
-	    var weight;
-	    var hasBeenClicked = 0;
-	    var roastComments;
-	    var finishingTime;
-	    userSelection();
+    jQuery(".breadcrumb-trail").hide();
+    jQuery(".breadcrumb").hide();
+    jQuery(".widget").hide();
+    var hasBeenSet = 0;
+    var button;
+    var selectedUser = 0;
+    var intensity;
+    var weight;
+    var hasBeenClicked = 0;
+    var roastComments;
+    var finishingTime;
+    userSelection();
 
-	    function userSelection() {
-	        if (jQuery("#isLoggedIn").length) {
-	            selectedUser = jQuery("#isLoggedIn").attr("value");
-	            roastSelection();
-	        } else {
-	            //This function gets the user information from the human.
-	            jQuery("#userNames").show();
-	            jQuery(".users").click(function() {
-	                if (typeof jQuery(this).attr("data-user") != 'undefined') {
-	                    selectedUser = jQuery(this).attr("data-user");
-	                    jQuery("#userNames").hide();
-	                    roastSelection();
-	                    //Below are the statements executed in the event that the other button is selected.
-	                	}
-	                	if (jQuery(this).attr("data-other") == 'other') {
-		                    jQuery("#userNames").fadeOut(0);
-		                    jQuery("#enterUser").fadeIn();
-		                    jQuery('#userName').keyup(function(){jQuery('#submitUser').attr('disabled', false)});
-                        	jQuery("#submitUser").click(function() {
-	                            selectedUser = jQuery("#userName").attr("value");
-	                            jQuery("#enterUser").hide();
-	                            roastSelection();
-	                        	})
-	                	}
-	            })
-	        }
-	    }
-
-
-	    function roastSelection() {
-	        jQuery("#selectedUser").val(selectedUser);
-	        jQuery(".roastedToday").show();
-	        jQuery("#roastSelection").show();
-	        jQuery(".button").click(function() {
-	            // Checks to see if any button has already been pressed.
-	            if (hasBeenSet == 1 && typeof button != 'undefined' && typeof jQuery(this).attr("data-origin") != 'undefined' && button != jQuery(this).attr("data-origin")) {
-	                jQuery("." + button + "-div").slideUp();
-	                button = jQuery(this).attr("data-origin");
-	                jQuery("." + button + "-div").slideDown();
-	            } else if (hasBeenSet == 1 && typeof button != 'undefined' && typeof jQuery(this).attr("data-origin") != 'undefined' && button == jQuery(this).attr("data-origin")) {
-	            	jQuery("." + button + "-div").slideUp();
-	            	hasBeenSet = 0;
-	            } else if (hasBeenSet == 1 && typeof jQuery(this).attr("data-origin") == 'undefined' && jQuery("#roastSelection").attr("style") != 'display: none;') {
-	                intensity = jQuery(this).attr("value");
-	                weight = jQuery("#lbs").attr("value");
-	                jQuery("#roastSelection").fadeOut(0);
-	                jQuery("#startRoast").show();
-	                jQuery("." + button + "-div").fadeOut();
-	                roastCompletion(weight);
-	            } else if (hasBeenSet == 0 && typeof jQuery(this).attr("data-origin") != 'undefined'){
-	                // Fades in all of the buttons of the class of the origin button.
-	                button = jQuery(this).attr("data-origin");
-	                jQuery("." + button + "-div").slideDown();
-	                hasBeenSet = 1;
-	            }
-	        })
-	    }
-
-
-	    function roastCompletion() {
-	        var totalSeconds;
-	        var hasBeenClicked = 0;
-	        var beforeColon = 0;
-	        finishingTime = 0;
-	        //this is the brains behind the stopwatch and associated time math and string concatenation
-	        jQuery(".stopWatch").click(function(event) {
-	            //this if loop checks to see if the clock has been clicked
-	            if (hasBeenClicked == 0) {
-	                event.preventDefault();
-	                hasBeenClicked = 1;
-	                var time = new Date();
-	                var startTime = (
-	                    ("0" + time.getHours()).slice(-2) + ":" +
-	                    ("0" + time.getMinutes()).slice(-2) + ":" +
-	                    ("0" + time.getSeconds()).slice(-2));
-	                jQuery("#startTime").val(startTime);
-	                var start = new Date;
-	                setInterval(function() {
-	                    totalSeconds = Math.round((new Date - start) / 1000);
-	                    if (totalSeconds < 10) {
-	                        afterColon = "0" + totalSeconds;
-	                    } else if (totalSeconds <= 59) {
-	                        var afterColon = totalSeconds;
-	                    } else if (totalSeconds >= 60) {
-	                        totalSeconds = 0;
-	                        var afterColon = "00";
-	                        beforeColon = beforeColon + 1;
-	                        start = new Date;
-	                    }
-	                    jQuery('#timeDisplay').text(beforeColon + ":" + afterColon);
-	                }, 1000);
-	            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") != '') {
-	                jQuery('a').click(function(event) {
-                         event.preventDefault();
-                         finishingTime = jQuery('#timeField').attr("value");
-                         roastComment = jQuery("#roastComment").attr("value");
-                          jQuery("#roastExit").val('2');
-                          var time = new Date();
-                          var endTime = (
-                              ("0" + time.getHours()).slice(-2) + ":" +
-                              ("0" + time.getMinutes()).slice(-2) + ":" +
-                              ("0" + time.getSeconds()).slice(-2));
-                          jQuery('#endTime').val(endTime);
-                          submitInfo(finishingTime);
+    function userSelection() {
+        if (jQuery("#isLoggedIn").length) {
+            selectedUser = jQuery("#isLoggedIn").attr("value");
+            roastSelection();
+        } else {
+            //This function gets the user information from the human.
+            jQuery("#userNames").show();
+            jQuery(".users").click(function() {
+                if (typeof jQuery(this).attr("data-user") != 'undefined') {
+                    selectedUser = jQuery(this).attr("data-user");
+                    jQuery("#userNames").hide();
+                    roastSelection();
+                    //Below are the statements executed in the event that the other button is selected.
+                }
+                if (jQuery(this).attr("data-other") == 'other') {
+                    jQuery("#userNames").fadeOut(0);
+                    jQuery("#enterUser").fadeIn();
+                    jQuery('#userName').keyup(function() {
+                        jQuery('#submitUser').attr('disabled', false)
+                    });
+                    jQuery("#submitUser").click(function() {
+                        selectedUser = jQuery("#userName").attr("value");
+                        jQuery("#enterUser").hide();
+                        roastSelection();
                     })
-                     finishingTime = jQuery("#timeField").attr("value");
-	                roastComments = jQuery("#roastComments").attr("value");
-	                jQuery("#roastExit").val('2');
-	                var time = new Date();
-	                var endTime = (
-	                    ("0" + time.getHours()).slice(-2) + ":" +
-	                    ("0" + time.getMinutes()).slice(-2) + ":" +
-	                    ("0" + time.getSeconds()).slice(-2));
-	                jQuery('#endTime').val(endTime);
-	                submitInfo(finishingTime);
-	            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") == '') {
-	            	jQuery('a').click(function(event) {
-	            		event.preventDefault();
-	            		finishingTime = jQuery('#timeDisplay').text();
-	            		roastComment = jQuery("#roastComment").attr("value");
-		                jQuery("#roastExit").val('1');
-		                var time = new Date();
-		                var endTime = (
-		                    ("0" + time.getHours()).slice(-2) + ":" +
-		                    ("0" + time.getMinutes()).slice(-2) + ":" +
-		                    ("0" + time.getSeconds()).slice(-2));
-		                jQuery('#endTime').val(endTime);
-		                submitInfo(finishingTime);
-	            	})
-	                finishingTime = jQuery('#timeDisplay').text();
-	                jQuery("#roastExit").val('1');
-	                var time = new Date();
-	                var endTime = (
-	                    ("0" + time.getHours()).slice(-2) + ":" +
-	                    ("0" + time.getMinutes()).slice(-2) + ":" +
-	                    ("0" + time.getSeconds()).slice(-2));
-	                jQuery('#endTime').val(endTime);
-	                submitInfo(finishingTime);
-	            }
-	        })
-	    }
+                }
+            })
+        }
+    }
 
 
-	    function submitInfo(finishingTime) {
-	        jQuery("#origin").val(button);
-	        jQuery("#roastWeight").val(weight);
-	        jQuery("#finishingTime").val(finishingTime);
-	        jQuery("#intensity").val(intensity);
-	        jQuery("#comment").val(jQuery("#roastComments").attr("value"));
-	        jQuery("#timeDisplay").closest("form").trigger('submit');
-	    };
-	});
+    function roastSelection() {
+        jQuery("#selectedUser").val(selectedUser);
+        jQuery(".roastedToday").show();
+        jQuery("#roastSelection").show();
+        jQuery(".button").click(function() {
+            // Checks to see if any button has already been pressed.
+            if (hasBeenSet == 1 && typeof button != 'undefined' && typeof jQuery(this).attr("data-origin") != 'undefined' && button != jQuery(this).attr("data-origin")) {
+                jQuery("." + button + "-div").slideUp();
+                button = jQuery(this).attr("data-origin");
+                jQuery("." + button + "-div").slideDown();
+            } else if (hasBeenSet == 1 && typeof button != 'undefined' && typeof jQuery(this).attr("data-origin") != 'undefined' && button == jQuery(this).attr("data-origin")) {
+                jQuery("." + button + "-div").slideUp();
+                hasBeenSet = 0;
+            } else if (hasBeenSet == 1 && typeof jQuery(this).attr("data-origin") == 'undefined' && jQuery("#roastSelection").attr("style") != 'display: none;') {
+                intensity = jQuery(this).attr("value");
+                weight = jQuery("#lbs").attr("value");
+                jQuery("#roastSelection").fadeOut(0);
+                jQuery("#startRoast").show();
+                jQuery("." + button + "-div").fadeOut();
+                roastCompletion(weight);
+            } else if (hasBeenSet == 0 && typeof jQuery(this).attr("data-origin") != 'undefined') {
+                // Fades in all of the buttons of the class of the origin button.
+                button = jQuery(this).attr("data-origin");
+                jQuery("." + button + "-div").slideDown();
+                hasBeenSet = 1;
+            }
+        })
+    }
+    var callback = function(event) {
+        event.preventDefault();
+        finishingTime = jQuery('#timeField').attr("value");
+        roastComment = jQuery("#roastComment").attr("value");
+        jQuery("#roastExit").val('2');
+        var time = new Date();
+        var endTime = (
+            ("0" + time.getHours()).slice(-2) + ":" +
+            ("0" + time.getMinutes()).slice(-2) + ":" +
+            ("0" + time.getSeconds()).slice(-2));
+        jQuery('#endTime').val(endTime);
+        submitInfo(finishingTime);
+    }
+
+    function roastCompletion() {
+        var totalSeconds;
+        var hasBeenClicked = 0;
+        var beforeColon = 0;
+        finishingTime = 0;
+        //this is the brains behind the stopwatch and associated time math and string concatenation
+        jQuery(".stopWatch").click(function(event) {
+            //this if loop checks to see if the clock has been clicked
+            if (hasBeenClicked == 0) {
+                event.preventDefault();
+                hasBeenClicked = 1;
+                var time = new Date();
+                var startTime = (
+                    ("0" + time.getHours()).slice(-2) + ":" +
+                    ("0" + time.getMinutes()).slice(-2) + ":" +
+                    ("0" + time.getSeconds()).slice(-2));
+                jQuery("#startTime").val(startTime);
+                var start = new Date;
+                setInterval(function() {
+                    totalSeconds = Math.round((new Date - start) / 1000);
+                    if (totalSeconds < 10) {
+                        afterColon = "0" + totalSeconds;
+                    } else if (totalSeconds <= 59) {
+                        var afterColon = totalSeconds;
+                    } else if (totalSeconds >= 60) {
+                        totalSeconds = 0;
+                        var afterColon = "00";
+                        beforeColon = beforeColon + 1;
+                        start = new Date;
+                    }
+                    jQuery('#timeDisplay').text(beforeColon + ":" + afterColon);
+                }, 1000);
+            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") != '') {
+                jQuery('a').click(function(event) {
+                	callback();
+                	});
+                finishingTime = jQuery("#timeField").attr("value");
+                roastComments = jQuery("#roastComments").attr("value");
+                jQuery("#roastExit").val('2');
+                var time = new Date();
+                var endTime = (
+                    ("0" + time.getHours()).slice(-2) + ":" +
+                    ("0" + time.getMinutes()).slice(-2) + ":" +
+                    ("0" + time.getSeconds()).slice(-2));
+                jQuery('#endTime').val(endTime);
+                submitInfo(finishingTime);
+            } else if (hasBeenClicked == 1 && jQuery("#timeField").attr("value") == '') {
+                jQuery('a').click(function(event) {
+                    event.preventDefault();
+                    finishingTime = jQuery('#timeDisplay').text();
+                    roastComment = jQuery("#roastComment").attr("value");
+                    jQuery("#roastExit").val('1');
+                    var time = new Date();
+                    var endTime = (
+                        ("0" + time.getHours()).slice(-2) + ":" +
+                        ("0" + time.getMinutes()).slice(-2) + ":" +
+                        ("0" + time.getSeconds()).slice(-2));
+                    jQuery('#endTime').val(endTime);
+                    submitInfo(finishingTime);
+                })
+                finishingTime = jQuery('#timeDisplay').text();
+                jQuery("#roastExit").val('1');
+                var time = new Date();
+                var endTime = (
+                    ("0" + time.getHours()).slice(-2) + ":" +
+                    ("0" + time.getMinutes()).slice(-2) + ":" +
+                    ("0" + time.getSeconds()).slice(-2));
+                jQuery('#endTime').val(endTime);
+                submitInfo(finishingTime);
+            }
+        })
+        jQuery("#timeField").keypress(function(event) {
+            if (event.which == 13) {
+                callback(event);
+            };
+        });
+    }
+
+
+    function submitInfo(finishingTime) {
+        jQuery("#origin").val(button);
+        jQuery("#roastWeight").val(weight);
+        jQuery("#finishingTime").val(finishingTime);
+        jQuery("#intensity").val(intensity);
+        jQuery("#comment").val(jQuery("#roastComments").attr("value"));
+        jQuery("#timeDisplay").closest("form").trigger('submit');
+    };
+});
 </script>
 <?php	global $wpdb;	$origins = $wpdb->get_col("SELECT DISTINCT(Country_Name) FROM ". $wpdb->prefix . "roast_details ORDER BY Country_Name");?>
 	<div id="primary" class="content-area">
@@ -273,7 +282,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 										<table><tr><td><h1 style="font-size: 2.5em; text-align: center; text-align: center;">Touch the stopwatch to start and stop the roast!</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
 										<table>
 											<tbody>
-												<tr><td></td><td style="text-align: center; padding: 30px 0 0 0;"><input id="timeField" type="number" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
+												<tr><td></td><td style="text-align: center; padding: 30px 0 0 0;"><input id="timeField" type="tel" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
 												<tr><td style="text-align: center; width: 50%" ><input type="image" class="stopWatch" id="stopWatch" align="bottom" src="<?php echo get_option('siteurl') ?>/wp-content/uploads/2015/03/Timer-Brown.png" style="border: none; width: 50%; padding: 5%; position: relative;">
 													<a href=""><h1 class="stopWatch" id="timeDisplay" style="position: absolute; top: 59%; font-weight: 30px; color: white; text-align: center; width: 50%;">0:00</h1></a>
 														</td>

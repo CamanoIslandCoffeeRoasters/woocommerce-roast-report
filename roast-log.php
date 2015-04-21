@@ -18,7 +18,9 @@ if (!defined('RL_PATH'))
     define('RL_PATH', plugin_dir_path(__FILE__));
 
 register_activation_hook( __FILE__, 'activationTables' );
-
+if (isset($_POST)) {
+	//var_dump($_POST);
+}
 function roastMenu()
 {
      add_menu_page("Roast Log", "Roast Report", "manage_options", "roast-options", 'roast_options_callback', '/wp-content/plugins/woocommerce-roast-report/favicon.ico', 75);
