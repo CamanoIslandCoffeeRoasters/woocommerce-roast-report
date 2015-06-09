@@ -22,7 +22,7 @@ if ($_POST["roastExit"] == 1 AND strlen($totalTime) == 5) {
 }
 echo "<input style='display: none;' id='isLoggedIn' name='isLoggedIn' value='" . $_POST['selectedUser'] . "'>";
 if ($_POST['intensity'] != "") {
-$lotNumber = $wpdb->get_var("SELECT Lot_Number FROM " . $wpdb->prefix . "roast_details WHERE Country_Name = '". $_POST['origin'] . "'");
+$lotNumber = $wpdb->get_var("SELECT Lot_Number FROM " . $wpdb->prefix . "roast_details WHERE Country_Name = '". $_POST['origin'] . "' AND Active = 1");
 $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedUser"],
 													'roastDate' 		=> $date,
 										            'coffeeChoice' 		=> $_POST['origin'],
@@ -279,7 +279,7 @@ $wpdb->insert($wpdb->prefix . 'roast_db', array(	'user' 				=> $_POST["selectedU
 									</section>
 									<section id='startRoast' style="display: none;">
 										<form method="POST" action="">
-										<table><tr><td><h1 style="font-size: 2.5em; text-align: center; text-align: center;">Touch the stopwatch to start and stop the roast!</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
+										<table><tr><td><h1 style="font-size: 2.5em; text-align: center; text-align: center;">Start and stop the roast with the stopwatch</h1></td><td style=" vertical-align: middle"><input style="display: center; margin: 0 15px;" type="submit" value="Start Over"></td></tr></table>
 										<table>
 											<tbody>
 												<tr><td></td><td style="text-align: center; padding: 30px 0 0 0;"><input id="timeField" type="tel" class='text' placeholder="Enter Time Manually" style="display: center; text-align: center; padding: 10px; width: 85%;" value=""></td></tr>
