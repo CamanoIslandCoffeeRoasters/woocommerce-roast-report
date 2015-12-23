@@ -20,6 +20,7 @@ class Roast_Table extends WP_List_Table {
             'ajax'      => true        //does this table support ajax?
         ) );
 
+
     }
 
 
@@ -68,11 +69,11 @@ class Roast_Table extends WP_List_Table {
     For inputting data before and/or after the table is displayed.
     */
     function extra_tablenav( $which ) {
-        global $dateResult, $dateResult2;
+        global $dateFrom, $dateTo;
         if ( $which == "top" ){
             //The code that goes before the table is here
-            print "From: <input type=\"text\" name=\"dateResult\" value=\"". $dateResult . "\" size=\"9\" />&nbsp;";
-            print "To: <input type=\"text\" name=\"dateResult2\" value=\"". $dateResult2 . "\" size=\"9\" />&nbsp;&nbsp;&nbsp;";
+            print "From: <input type=\"text\" name=\"dateFrom\" value=\"". $dateFrom . "\" size=\"9\" />&nbsp;";
+            print "To: <input type=\"text\" name=\"dateTo\" value=\"". $dateTo . "\" size=\"9\" />&nbsp;&nbsp;&nbsp;";
             print "<input type=\"submit\" class=\"button action\" value=\"Submit\" />&nbsp;&nbsp;&nbsp;";
       			print "<input type=\"submit\" class=\"button-primary\" name=\"weekly_roast_report\" value=\"Generate Weekly Report\" />&nbsp;&nbsp;&nbsp;";
       			print "<input type=\"submit\" class=\"button-primary\" name=\"monthly_roast_report\" value=\"Monthly Roasted Report\" /> ";
@@ -101,18 +102,18 @@ class Roast_Table extends WP_List_Table {
      * @param array $item A singular item (one full row's worth of data)
      * @return string Text to be placed inside the column <td> (movie title only)
      **************************************************************************/
-    function column_title($item){
+    function column_roastDate($item){
 
         //Build row actions
         $actions = array(
-            'edit'      => sprintf('<a href="?page=%s&action=%s&roast=%s">Edit</a>',$_REQUEST['page'],'edit',$item['roastDate']),
-            'delete'    => sprintf('<a href="?page=%s&action=%s&roast=%s">Delete</a>',$_REQUEST['page'],'delete',$item['roastDate']),
+            //'edit'      => sprintf('<a href="?page=%s&action=%s&roast=%s">Edit</a>',$_POST['page'],'edit',$item['roastDate']),
+            'delete'    => sprintf('<a href="">Delete</a>',$_POST['page'],'delete',$item['id']),
         );
 
         //Return the title contents
-        return sprintf('%1$s <span style="color:silver">(%2$s)</span>%3$s',
-            /*$1%s*/ $item['coffeeChoice'],
-            /*$2%s*/ $item['greenCoffee'],
+        return sprintf('<span style="float:left;">%1$s&nbsp;&nbsp;</span><span class="delete_roast" data-roast-id="%2$s">%3$s</span>',
+            /*$2%s*/ date('m/d/Y', strtotime($item['roastDate'])),
+            /*$2%s*/ $item['id'],
             /*$3%s*/ $this->row_actions($actions)
 
 
@@ -154,7 +155,7 @@ class Roast_Table extends WP_List_Table {
     function get_columns(){
         $columns = array(
         // Uncomment line below to include checkbox for Bulk Actions
-            //'cb'                => '<input type="checkbox" />', //Render a checkbox instead of text
+            //'cb'                => '<input type="checkbox" name="delete[]" />', //Render a checkbox instead of text
             'roastDate'         => 'Date',
             'roastTime'         => 'Start Time',
             'coffeeChoice'      => 'Coffee',
@@ -190,7 +191,7 @@ class Roast_Table extends WP_List_Table {
             'roastChoice'    => array('roastChoice',false),
             'roastLength'    => array('roastLength',false),
             'greenCoffee'    => array('greenCoffee',false),
-            'lotNumber'    => array('lotNumber',false),
+            'lotNumber'      => array('lotNumber',false),
             'user'           => array('user',false)
         );
         return $sortable_columns;
@@ -228,7 +229,7 @@ class Roast_Table extends WP_List_Table {
      * @see $this->prepare_items()
      **************************************************************************/
     function process_bulk_action() {
-
+        echo $this->current_action();
         //Detect when a bulk action is being triggered...
         if( 'delete'===$this->current_action() ) {
             wp_die('Items deleted (or they would be if we had items to delete)!');
@@ -253,8 +254,7 @@ class Roast_Table extends WP_List_Table {
      * @uses $this->set_pagination_args()
      **************************************************************************/
     function prepare_items() {
-        global $wpdb, $dateResult, $dateResult2;
-
+        global $wpdb, $dateFrom, $dateTo;
         //This is used only if making any database queries
 
 
@@ -302,7 +302,13 @@ class Roast_Table extends WP_List_Table {
          * use sort and pagination data to build a custom query instead, as you'll
          * be able to use your precisely-queried data immediately.
          */
-         $roast_query = $wpdb->get_results("SELECT id,roastDate,roastTime,coffeeChoice,roastChoice,roastLength,greenCoffee,user,lotNumber FROM " . $wpdb->prefix . "roast_db WHERE roastDate BETWEEN '$dateResult' AND '$dateResult2' ORDER BY roastDate DESC, roastTime DESC", ARRAY_A);
+         $roast_query = $wpdb->get_results("SELECT id,roastDate,roastTime,coffeeChoice,roastChoice,roastLength,greenCoffee,user,lotNumber
+                                            FROM " . $wpdb->prefix . "roast_db
+                                            WHERE roastDate
+                                            BETWEEN '" . date("Y-m-d", strtotime($_POST['dateFrom'])) . "'
+                                            AND '" . date("Y-m-d", strtotime($_POST['dateTo'])) . "'
+                                            ORDER BY roastDate DESC, roastTime DESC",
+                                            ARRAY_A);
 
         $data = $roast_query;
 
@@ -315,8 +321,8 @@ class Roast_Table extends WP_List_Table {
          * sorting technique would be unnecessary.
          */
         function usort_reorder($a,$b){
-             $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'roastDate'; //If no sort, default to title
-             $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'desc'; //If no order, default to asc
+             $orderby = (!empty($_POST['orderby'])) ? $_POST['orderby'] : 'roastDate'; //If no sort, default to title
+             $order = (!empty($_POST['order'])) ? $_POST['order'] : 'desc'; //If no order, default to asc
              $result = strcmp($a[$orderby], $b[$orderby]); //Determine sort order
              return ($order==='asc') ? $result : -$result; //Send final sort direction to usort
          }
@@ -382,7 +388,26 @@ class Roast_Table extends WP_List_Table {
 
 
 function render_roast_page(){
-    global $dateResult, $dateResult2;
+    global $dateFrom, $dateTo;
+
+    if (!empty($_POST['dateFrom'])) {
+
+           $dateFrom = $_POST['dateFrom'];
+        }
+        else {
+            $dateFrom = date('m/01/Y', strtotime("-1 month"));
+        }
+
+    if (!empty($_POST['dateTo'])) {
+
+            $dateTo = $_POST['dateTo'];
+        }
+
+        else {
+           $dateTo = date('m/t/Y', strtotime('-1 week'));
+        }
+
+
     //Create an instance of our package class...
     $roastTable = new Roast_Table();
     //Fetch, prepare, sort, and filter our data...
@@ -398,42 +423,49 @@ function render_roast_page(){
 
 
         <!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
-        <form id="movies-filter" method="GET">
+        <form id="movies-filter" method="POST">
             <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+            <input type="hidden" name="page" value="<?php echo $_POST['page'] ?>" />
 
             <?php
 
-            //print "From: <input type=\"text\" name=\"dateResult\" value=\"". $dateResult . "\" size=\"9\" />&nbsp;";
-            //print "To: <input type=\"text\" name=\"dateResult2\" value=\"". $dateResult2 . "\" size=\"9\" />&nbsp;&nbsp;&nbsp;";
+            //print "From: <input type=\"text\" name=\"dateFrom\" value=\"". $dateFrom . "\" size=\"9\" />&nbsp;";
+            //print "To: <input type=\"text\" name=\"dateTo\" value=\"". $dateTo . "\" size=\"9\" />&nbsp;&nbsp;&nbsp;";
             //print "<input type=\"submit\" class=\"button action\" value=\"Submit\" />"; ?>
 
             <!-- Now we can render the completed list table -->
             <!-- <?php $roastTable->search_box($text, $input_id ); ?> -->
 
-            <?php if(!isset($_GET['select_lot_numbers'])) {$roastTable->display();} ?>
+            <?php if(!isset($_POST['select_lot_numbers'])) {$roastTable->display();} ?>
         </form>
     </div>
+
+    <script>
+        jQuery(document).ready(function($) {
+            $('[name^="date"]').datepicker();
+
+            $('.wp-list-table.roasts').on('click', '.delete_roast', function(event) {
+                event.preventDefault();
+                // Get the ID of the roast to be deleted
+                roast_id = $(this).data('roast-id');
+                // Get the row to remove after it's been deleted
+                row = $(this).parents('tr');
+                // The URL to the AJAX file for deleting a row
+                safeUrl = '/wp-content/plugins/woocommerce-roast-report/js/delete-roast.php';
+                // Send the row to be deleted
+                $.post(safeUrl, {'roast_id' : roast_id}, function (response) {
+                    if ($.parseJSON(response).success == true) {
+                        row.hide('slow');
+                    }
+                });
+            });
+        });
+    </script>
     <?php
 }
 
-global $dateResult, $dateResult2, $wpdb;;
-        if (!empty($_GET['dateResult'])) {
+global $dateFrom, $dateTo, $wpdb;
 
-               $dateResult = $_GET['dateResult'];
-            }
-            else {
-                $dateResult = date('Y-m-d');
-            }
-
-        if (!empty($_GET['dateResult2'])) {
-
-                $dateResult2 = $_GET['dateResult2'];
-            }
-
-            else {
-               $dateResult2 = date('Y-m-d');
-            }
 
 
 
@@ -441,7 +473,7 @@ global $dateResult, $dateResult2, $wpdb;;
 
 render_roast_page();
 
-if (($_GET['select_lot_numbers'])) {
+if (($_POST['select_lot_numbers'])) {
 
 				$unique_lot_numbers = $wpdb->get_results("SELECT * FROM `" . $wpdb->prefix . "roast_details` ORDER BY Country_Name", ARRAY_N );
 
@@ -485,7 +517,7 @@ if (($_GET['select_lot_numbers'])) {
 }
 
 
-if (($_GET['weekly_roast_report'])) {
+if (($_POST['weekly_roast_report'])) {
 
 	echo "<table class=\"widefat\">";
 	echo "<tbody>";
@@ -550,10 +582,10 @@ echo "</tbody>";
 echo "</table>";
 }
 
-if (($_GET['monthly_roast_report'])) {
+if (($_POST['monthly_roast_report'])) {
 
 				$daily_total = 0;
-				$daily_coffee = $wpdb->get_results("SELECT roastDate, coffeeChoice, roastChoice, user, SUM(greenCoffee), SUM(roastedCoffee) FROM `cicr_roast_db` WHERE roastDate BETWEEN '$dateResult' AND '$dateResult2' GROUP BY coffeeChoice", ARRAY_N );
+				$daily_coffee = $wpdb->get_results("SELECT roastDate, coffeeChoice, roastChoice, user, SUM(greenCoffee), SUM(roastedCoffee) FROM `cicr_roast_db` WHERE roastDate BETWEEN '$dateFrom' AND '$dateTo' GROUP BY coffeeChoice", ARRAY_N );
 
 			echo "<table class=\"widefat\" width=\"30%\">";
 			echo "<thead>";
